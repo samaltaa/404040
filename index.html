@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chismesito</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: #f6f1e7;
+      color: #444;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #7d9d9c, #a7c4bc);
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      padding: 1rem 2rem;
+      box-shadow: 0 3px 8px rgba(44, 62, 80, 0.25);
+      border-bottom: 4px solid #c7d3b0;
+      gap: 1rem;
+    }
+
+    header img {
+      height: 45px;
+      border-radius: 8px;
+      box-shadow: 1px 1px 5px rgba(0,0,0,0.15);
+      border: 2px solid #d9e4dd;
+    }
+
+    header div.title-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      margin: 0;
+      font-family: 'Arial Black', Gadget, sans-serif;
+      letter-spacing: 2px;
+      text-shadow: 1px 1px 3px #dde6db;
+      color: #2c3e50;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 1rem;
+      font-style: italic;
+      font-weight: 600;
+      color: #3a536b;
+      text-shadow: 0 1px 2px #dde6db;
+      user-select: none;
+    }
+
+    #search-container {
+      background: #a7c4bc;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      border-bottom: 4px solid #7d9d9c;
+    }
+    
+    #search-input {
+      width: 60%;
+      max-width: 500px;
+      padding: 8px 12px;
+      border: 2px solid #d9e4dd;
+      border-radius: 20px 0 0 20px;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    
+    #search-input:focus {
+      border-color: #7d9d9c;
+    }
+    
+    #search-button {
+      padding: 8px 15px;
+      background: #7d9d9c;
+      color: white;
+      border: 2px solid #7d9d9c;
+      border-radius: 0 20px 20px 0;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    #search-button:hover {
+      background: #5e7d7c;
+    }
+
+    #map {
+      flex-grow: 1;
+      width: 100%;
+      border-bottom: 4px solid #7d9d9c;
+      position: relative;
+      height: 80vh;
+    }
+
+    footer {
+      background: #7d9d9c;
+      color: #f1f1f1;
+      text-align: center;
+      padding: 1rem 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+      box-shadow: 0 -3px 6px rgba(44, 62, 80, 0.15);
+      border-top: 4px solid #a7c4bc;
+      font-family: 'Arial Black', Gadget, sans-serif;
+      letter-spacing: 1.5px;
+    }
+
+    .popup {
+      position: absolute;
+      background: #f1f1f1dd;
+      border: 2px solid #7d9d9c;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      box-shadow: 3px 3px 8px rgba(0,0,0,0.2);
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      color: #2c3e50;
+      user-select: none;
+      z-index: 1000;
+    }
+
+    #welcome-popup {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 400px;
+      text-align: center;
+      background: #ffffffee;
+      padding: 1.5rem;
+    }
+
+    #welcome-popup h2 {
+      color: #7d9d9c;
+      margin-top: 0;
+    }
+
+    #welcome-popup ul {
+      text-align: left;
+      margin: 1rem 0;
+    }
+
+    #welcome-popup button {
+      background: #7d9d9c;
+      color: white;
+      border: none;
+      padding: 0.5rem 1.5rem;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background 0.2s;
+    }
+
+    #welcome-popup button:hover {
+      background: #5e7d7c;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      background: #7d9d9c;
+      border: none;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      color: #f1f1f1;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 20px;
+      padding: 0;
+      user-select: none;
+    }
+
+    .close-btn:hover {
+      background: #5e7d7c;
+    }
+
+    #chisme-form-popup {
+      top: 1rem;
+      left: 1rem;
+      background: #ffffffee;
+      border: 2px solid #a7c4bc;
+      border-radius: 12px;
+      padding: 1rem;
+      max-width: 300px;
+      display: none;
+    }
+
+    #chisme-form-popup textarea {
+      width: 100%;
+      height: 60px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    #chisme-form-popup button {
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+
+    #chisme-form-popup .submit-btn {
+      background-color: #7d9d9c;
+      color: #fff;
+    }
+
+    #chisme-form-popup .submit-btn:hover {
+      background-color: #5e7d7c;
+    }
+
+    #chisme-form-popup .cancel-btn {
+      background-color: #aaa;
+      color: #fff;
+      margin-left: 0.5rem;
+    }
+
+    #chisme-form-popup .cancel-btn:hover {
+      background-color: #888;
+    }
+    
+    #error-message {
+      color: #e74c3c;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: bold;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="https://images.vexels.com/media/users/3/355917/isolated/preview/8d010899fcd583891c9c6fed8958fa50-brown-banana-design.png" alt="Chismesito Logo" />
+    <div class="title-container">
+      <h1>Chismesito</h1>
+      <p>La base de dato donde utede ponen su chime.</p>
+    </div>
+  </header>
+
+  <div id="search-container">
+    <input type="text" id="search-input" placeholder="Buscar lugar o coordenadas (ej: 18.7357, -70.1627)">
+    <button id="search-button">Buscar</button>
+  </div>
+
+  <div id="map"></div>
+
+  <div id="chisme-form-popup" class="popup">
+    <button class="close-btn">×</button>
+    <label for="chisme-text">¿Qué chisme hay por aquí?</label>
+    <textarea id="chisme-text" placeholder="Escribe tu chisme..."></textarea><br />
+    <div id="error-message"></div>
+    <button class="submit-btn">Guardar</button>
+    <button class="cancel-btn">Cancelar</button>
+  </div>
+
+  <div id="welcome-popup" class="popup">
+    <button class="close-btn">×</button>
+    <h2>¡Bienvenido a Chismesito!</h2>
+    <p>La plataforma donde puedes compartir y descubrir chismes en tu área.</p>
+    <ul>
+      <li>Haz clic en cualquier punto del mapa para compartir un chisme.</li>
+      <li>Los marcadores en el mapa representan chismes existentes.</li>
+      <li>Haz clic en un marcador para leer el chisme.</li>
+      <li>Usa la barra de búsqueda para encontrar lugares específicos.</li>
+    </ul>
+    <p>¡Disfruta explorando los chismes de tu comunidad!</p>
+    <button id="welcome-continue-btn">¡Entendido!</button>
+  </div>
+
+  <footer>
+    &copy; 2025 Chismesito — Dique tu no sabe klk en tu barrio, palomo.
+  </footer>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+    // Initialize map first - this ensures the map is always available
+    const map = L.map('map').setView([18.7357, -70.1627], 8);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyB58ch6hoGgH0iPMjgu4pWamyYF80UDOHs",
+      authDomain: "chismesito-9c26d.firebaseapp.com",
+      projectId: "chismesito-9c26d",
+      storageBucket: "chismesito-9c26d.firebasestorage.app",
+      messagingSenderId: "102571828511",
+      appId: "1:102571828511:web:d2e5d8897e981ae331bc2a",
+      measurementId: "G-T19VXMYYTG"
+    };
+
+    // Initialize Firebase
+    let app;
+    let db;
+    const errorMessage = document.getElementById('error-message');
+    
+    try {
+      app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      
+      // Enable offline persistence (helps with intermittent connections)
+      enableIndexedDbPersistence(db)
+        .catch((err) => {
+          if (err.code === 'failed-precondition') {
+            console.warn('Multiple tabs open, persistence can only be enabled in one tab at a a time.');
+          } else if (err.code === 'unimplemented') {
+            console.warn('The current browser does not support all of the features required to enable persistence');
+          }
+        });
+        
+      console.log("Firebase initialized successfully");
+    } catch (error) {
+      console.error("Error initializing Firebase:", error);
+      alert("Error initializing the app. Please check the console for details.");
+    }
+
+    // Load existing chismes
+    const loadChismes = async () => {
+      if (!db) return;
+      
+      try {
+        const querySnapshot = await getDocs(collection(db, "chismes"));
+        querySnapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.coords && Array.isArray(data.coords) && data.coords.length === 2) {
+            L.marker(data.coords).addTo(map).bindPopup(data.text);
+          }
+        });
+      } catch (error) {
+        console.error("Error loading chismes:", error);
+      }
+    };
+    
+    // Only try to load chismes if Firebase initialized successfully
+    if (db) {
+      loadChismes();
+    }
+
+    // Search functionality
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+    
+    const searchLocation = async () => {
+      const query = searchInput.value.trim();
+      
+      if (!query) return;
+      
+      // Check if input matches coordinates pattern (lat,lng)
+      const coordsPattern = /^(-?\d+(\.\d+)?),\s*(-?\d+(\.\d+)?)$/;
+      const coordsMatch = query.match(coordsPattern);
+      
+      if (coordsMatch) {
+        // If coordinates, parse directly
+        const lat = parseFloat(coordsMatch[1]);
+        const lng = parseFloat(coordsMatch[3]);
+        
+        if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+          map.setView([lat, lng], 13);
+          return;
+        }
+      }
+      
+      // If not coordinates, use Nominatim API for geocoding
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+          const result = data[0];
+          map.setView([result.lat, result.lon], 13);
+        } else {
+          alert('No se encontró la ubicación');
+        }
+      } catch (error) {
+        console.error('Error searching location:', error);
+        alert('Error al buscar la ubicación');
+      }
+    };
+    
+    searchButton.addEventListener('click', searchLocation);
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        searchLocation();
+      }
+    });
+
+    // Welcome popup logic
+    const welcomePopup = document.getElementById('welcome-popup');
+    const welcomeCloseBtn = welcomePopup.querySelector('.close-btn');
+    const welcomeContinueBtn = document.getElementById('welcome-continue-btn');
+
+    // Check if this is the first visit
+    const isFirstVisit = !localStorage.getItem('visited');
+    if (isFirstVisit) {
+      welcomePopup.style.display = 'block';
+      localStorage.setItem('visited', 'true');
+    } else {
+      welcomePopup.style.display = 'none';
+    }
+
+    const closeWelcomePopup = () => {
+      welcomePopup.style.display = 'none';
+    };
+
+    welcomeCloseBtn.addEventListener('click', closeWelcomePopup);
+    welcomeContinueBtn.addEventListener('click', closeWelcomePopup);
+
+    // Chisme form popup logic
+    const chismePopup = document.getElementById('chisme-form-popup');
+    const textarea = document.getElementById('chisme-text');
+    const submitBtn = chismePopup.querySelector('.submit-btn');
+    const cancelBtn = chismePopup.querySelector('.cancel-btn');
+    const closeBtn = chismePopup.querySelector('.close-btn');
+    let currentLatLng = null;
+
+    map.on('click', (e) => {
+      currentLatLng = e.latlng;
+      textarea.value = '';
+      errorMessage.style.display = 'none';
+      chismePopup.style.display = 'block';
+    });
+
+    const closeChismePopup = () => {
+      chismePopup.style.display = 'none';
+      errorMessage.style.display = 'none';
+    };
+
+    submitBtn.addEventListener('click', async () => {
+      const text = textarea.value.trim();
+      
+      if (!db) {
+        errorMessage.textContent = "La conexión a Firebase no está disponible.";
+        errorMessage.style.display = 'block';
+        return;
+      }
+      
+      if (text && currentLatLng) {
+        try {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Guardando...";
+          
+          const chismeData = {
+            coords: [currentLatLng.lat, currentLatLng.lng],
+            text: text,
+            timestamp: new Date().toISOString()
+          };
+          
+          // Add the document to Firestore
+          const docRef = await addDoc(collection(db, "chismes"), chismeData);
+          console.log("Chisme added with ID: ", docRef.id);
+          
+          // Add marker to map
+          L.marker([currentLatLng.lat, currentLatLng.lng]).addTo(map).bindPopup(text);
+          
+          // Close popup
+          closeChismePopup();
+        } catch (error) {
+          console.error("Error adding chisme:", error);
+          errorMessage.textContent = "Error al guardar el chisme. " + error.message;
+          errorMessage.style.display = 'block';
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Guardar";
+        }
+      } else if (!text) {
+        errorMessage.textContent = "Por favor escribe un chisme antes de guardar.";
+        errorMessage.style.display = 'block';
+      }
+    });
+
+    cancelBtn.addEventListener('click', closeChismePopup);
+    closeBtn.addEventListener('click', closeChismePopup);
+
+    // Add offline functionality using localStorage as a fallback
+    if (!navigator.onLine) {
+      alert("Estás offline. Algunos chismes podrían no cargarse y los nuevos se guardarán cuando vuelvas a estar online.");
+    }
+
+    window.addEventListener('online', () => {
+      console.log('Back online, syncing pending chismes...');
+      // Here you could implement logic to sync any locally stored chismes
+    });
+
+    window.addEventListener('offline', () => {
+      console.log('You are now offline');
+    });
+  </script>
+</body>
+</html>
