@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Chismesito</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <style>
     body {
       margin: 0;
@@ -13,6 +14,7 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
+      overflow-x: hidden;
     }
 
     header {
@@ -20,14 +22,14 @@
       color: #2c3e50;
       display: flex;
       align-items: center;
-      padding: 1rem 2rem;
+      padding: 0.8rem 1.2rem;
       box-shadow: 0 3px 8px rgba(44, 62, 80, 0.25);
       border-bottom: 4px solid #c7d3b0;
-      gap: 1rem;
+      gap: 0.8rem;
     }
 
     header img {
-      height: 45px;
+      height: 35px;
       border-radius: 8px;
       box-shadow: 1px 1px 5px rgba(0,0,0,0.15);
       border: 2px solid #d9e4dd;
@@ -36,22 +38,22 @@
     header div.title-container {
       display: flex;
       flex-direction: column;
-      gap: 0.2rem;
+      gap: 0.1rem;
     }
 
     header h1 {
-      font-size: 2.2rem;
+      font-size: 1.6rem;
       font-weight: 900;
       margin: 0;
       font-family: 'Arial Black', Gadget, sans-serif;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
       text-shadow: 1px 1px 3px #dde6db;
       color: #2c3e50;
     }
 
     header p {
       margin: 0;
-      font-size: 1rem;
+      font-size: 0.8rem;
       font-style: italic;
       font-weight: 600;
       color: #3a536b;
@@ -61,14 +63,14 @@
 
     #search-container {
       background: #a7c4bc;
-      padding: 10px;
+      padding: 8px;
       display: flex;
       justify-content: center;
       border-bottom: 4px solid #7d9d9c;
     }
     
     #search-input {
-      width: 60%;
+      width: 70%;
       max-width: 500px;
       padding: 8px 12px;
       border: 2px solid #d9e4dd;
@@ -98,25 +100,35 @@
       background: #5e7d7c;
     }
 
-    #map {
+    .map-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 5px;
+      background: #f6f1e7;
       flex-grow: 1;
-      width: 100%;
-      border-bottom: 4px solid #7d9d9c;
-      position: relative;
-      height: 80vh;
+    }
+
+    #map {
+      width: 95%;
+      max-width: 1200px;
+      height: 70vh;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border: 3px solid #7d9d9c;
     }
 
     footer {
       background: #7d9d9c;
       color: #f1f1f1;
       text-align: center;
-      padding: 1rem 0;
-      font-size: 0.95rem;
+      padding: 0.8rem 0;
+      font-size: 0.85rem;
       font-weight: 700;
       box-shadow: 0 -3px 6px rgba(44, 62, 80, 0.15);
       border-top: 4px solid #a7c4bc;
       font-family: 'Arial Black', Gadget, sans-serif;
-      letter-spacing: 1.5px;
+      letter-spacing: 1px;
     }
 
     .popup {
@@ -130,26 +142,31 @@
       color: #2c3e50;
       user-select: none;
       z-index: 1000;
+      max-width: 90%;
     }
 
     #welcome-popup {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      max-width: 400px;
+      max-width: 90%;
+      width: 350px;
       text-align: center;
       background: #ffffffee;
-      padding: 1.5rem;
+      padding: 1.2rem;
     }
 
     #welcome-popup h2 {
       color: #7d9d9c;
       margin-top: 0;
+      font-size: 1.4rem;
     }
 
     #welcome-popup ul {
       text-align: left;
       margin: 1rem 0;
+      padding-left: 1.5rem;
+      font-size: 0.9rem;
     }
 
     #welcome-popup button {
@@ -197,8 +214,9 @@
       border: 2px solid #a7c4bc;
       border-radius: 12px;
       padding: 1rem;
-      max-width: 300px;
+      max-width: 280px;
       display: none;
+      width: 80%;
     }
 
     #chisme-form-popup textarea {
@@ -209,6 +227,7 @@
       padding: 0.5rem;
       font-family: inherit;
       resize: vertical;
+      box-sizing: border-box;
     }
 
     #chisme-form-popup button {
@@ -247,6 +266,100 @@
       font-weight: bold;
       display: none;
     }
+    
+    /* Media Queries for Responsiveness */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.4rem;
+      }
+      
+      header p {
+        font-size: 0.75rem;
+      }
+      
+      header img {
+        height: 30px;
+      }
+      
+      #search-input {
+        width: 65%;
+        font-size: 0.85rem;
+      }
+      
+      #search-button {
+        font-size: 0.85rem;
+        padding: 8px 12px;
+      }
+      
+      #map {
+        height: 60vh;
+      }
+      
+      #welcome-popup {
+        width: 85%;
+        padding: 1rem;
+      }
+      
+      #welcome-popup h2 {
+        font-size: 1.2rem;
+      }
+      
+      #welcome-popup ul {
+        font-size: 0.85rem;
+        padding-left: 1.2rem;
+      }
+      
+      #welcome-popup button {
+        font-size: 0.9rem;
+        padding: 0.4rem 1.2rem;
+      }
+      
+      #chisme-form-popup {
+        max-width: 250px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      header {
+        padding: 0.6rem 0.8rem;
+      }
+      
+      header h1 {
+        font-size: 1.2rem;
+        letter-spacing: 0.5px;
+      }
+      
+      header p {
+        font-size: 0.7rem;
+      }
+      
+      header img {
+        height: 25px;
+      }
+      
+      #search-container {
+        padding: 6px;
+      }
+      
+      #search-input {
+        width: 70%;
+        padding: 6px 10px;
+      }
+      
+      #search-button {
+        padding: 6px 10px;
+      }
+      
+      #map {
+        height: 55vh;
+        width: 98%;
+      }
+      
+      footer {
+        font-size: 0.75rem;
+        padding: 0.6rem 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -264,10 +377,11 @@
     <button id="search-button">Buscar</button>
   </div>
 
-  <div id="map"></div>
+  <div class="map-container">
+    <div id="map"></div>
+  </div>
 
   <div id="chisme-form-popup" class="popup">
-    <button class="close-btn">×</button>
     <label for="chisme-text">¿Qué chisme hay por aquí?</label>
     <textarea id="chisme-text" placeholder="Escribe tu chisme..."></textarea><br />
     <div id="error-message"></div>
@@ -440,11 +554,41 @@
     const closeBtn = chismePopup.querySelector('.close-btn');
     let currentLatLng = null;
 
+    // Make popups responsive to screen size and location
+    const positionPopup = (popup, latLng) => {
+      const mapSize = map.getSize();
+      const popupWidth = popup.offsetWidth;
+      const popupHeight = popup.offsetHeight;
+      const point = map.latLngToContainerPoint(latLng);
+      
+      // Check if we're on a small screen (likely mobile)
+      const isMobile = window.innerWidth <= 768;
+      
+      let left, top;
+      
+      if (isMobile) {
+        // On mobile, center the popup horizontally
+        left = Math.max(10, Math.min(mapSize.x - popupWidth - 10, mapSize.x / 2 - popupWidth / 2));
+        // Position near the bottom of the screen but not at the very bottom
+        top = mapSize.y - popupHeight - 30;
+      } else {
+        // On desktop, position near the click but avoid edges
+        left = Math.max(10, Math.min(mapSize.x - popupWidth - 10, point.x - popupWidth / 2));
+        top = Math.max(70, Math.min(mapSize.y - popupHeight - 10, point.y - popupHeight - 10));
+      }
+      
+      popup.style.left = left + 'px';
+      popup.style.top = top + 'px';
+    };
+
     map.on('click', (e) => {
       currentLatLng = e.latlng;
       textarea.value = '';
       errorMessage.style.display = 'none';
       chismePopup.style.display = 'block';
+      
+      // Position the popup responsively
+      positionPopup(chismePopup, e.latlng);
     });
 
     const closeChismePopup = () => {
@@ -498,19 +642,63 @@
     cancelBtn.addEventListener('click', closeChismePopup);
     closeBtn.addEventListener('click', closeChismePopup);
 
-    // Add offline functionality using localStorage as a fallback
-    if (!navigator.onLine) {
-      alert("Estás offline. Algunos chismes podrían no cargarse y los nuevos se guardarán cuando vuelvas a estar online.");
+    // Handle device orientation changes and window resizing
+    window.addEventListener('resize', () => {
+      // If the chisme popup is visible, reposition it
+      if (chismePopup.style.display === 'block' && currentLatLng) {
+        positionPopup(chismePopup, currentLatLng);
+      }
+    });
+    
+    // Handle orientation changes on mobile
+    window.addEventListener('orientationchange', () => {
+      // Wait for the orientation change to complete
+      setTimeout(() => {
+        // Invalidate the map size to force a redraw
+        map.invalidateSize();
+        
+        // If the chisme popup is visible, reposition it
+        if (chismePopup.style.display === 'block' && currentLatLng) {
+          positionPopup(chismePopup, currentLatLng);
+        }
+      }, 200);
+    });
+    
+    // Force map to update its size when it becomes visible
+    map.invalidateSize();
+    
+    // Add touch-friendly interactions for mobile users
+    if ('ontouchstart' in window) {
+      // Make sure clicking the map works well on touch devices
+      const mapContainer = document.getElementById('map');
+      mapContainer.style.cursor = 'pointer';
+      
+      // Add a visual hint for mobile users on first visit
+      if (isFirstVisit) {
+        const mobileTip = document.createElement('div');
+        mobileTip.style.position = 'absolute';
+        mobileTip.style.bottom = '80px';
+        mobileTip.style.left = '50%';
+        mobileTip.style.transform = 'translateX(-50%)';
+        mobileTip.style.backgroundColor = 'rgba(125, 157, 156, 0.8)';
+        mobileTip.style.color = 'white';
+        mobileTip.style.padding = '8px 16px';
+        mobileTip.style.borderRadius = '20px';
+        mobileTip.style.fontWeight = 'bold';
+        mobileTip.style.zIndex = '1000';
+        mobileTip.style.textAlign = 'center';
+        mobileTip.style.fontSize = '0.9rem';
+        mobileTip.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+        mobileTip.textContent = '¡Toca el mapa para añadir un chisme!';
+        
+        document.body.appendChild(mobileTip);
+        
+        // Remove the tip after 5 seconds
+        setTimeout(() => {
+          document.body.removeChild(mobileTip);
+        }, 5000);
+      }
     }
-
-    window.addEventListener('online', () => {
-      console.log('Back online, syncing pending chismes...');
-      // Here you could implement logic to sync any locally stored chismes
-    });
-
-    window.addEventListener('offline', () => {
-      console.log('You are now offline');
-    });
   </script>
 </body>
 </html>
