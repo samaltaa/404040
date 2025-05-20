@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chismesito</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    /* Reset and base */
+    body {
+      margin: 0;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: #f6f1e7;
+      color: #444;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #7d9d9c, #a7c4bc);
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      padding: 1rem 2rem;
+      box-shadow: 0 3px 8px rgba(44, 62, 80, 0.25);
+      border-bottom: 4px solid #c7d3b0;
+      gap: 1rem;
+    }
+
+    header img {
+      height: 45px;
+      border-radius: 8px;
+      box-shadow: 1px 1px 5px rgba(0,0,0,0.15);
+      border: 2px solid #d9e4dd;
+    }
+
+    header div.title-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      margin: 0;
+      font-family: 'Arial Black', Gadget, sans-serif;
+      letter-spacing: 2px;
+      text-shadow: 1px 1px 3px #dde6db;
+      color: #2c3e50;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 1rem;
+      font-style: italic;
+      font-weight: 600;
+      color: #3a536b;
+      text-shadow: 0 1px 2px #dde6db;
+      user-select: none;
+    }
+
+    /* Map container */
+    #map {
+      flex-grow: 1;
+      width: 100%;
+      border-top: 4px solid #a7c4bc;
+      border-bottom: 4px solid #7d9d9c;
+      position: relative;
+    }
+
+    /* Footer */
+    footer {
+      background: #7d9d9c;
+      color: #f1f1f1;
+      text-align: center;
+      padding: 1rem 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+      box-shadow: 0 -3px 6px rgba(44, 62, 80, 0.15);
+      border-top: 4px solid #a7c4bc;
+      font-family: 'Arial Black', Gadget, sans-serif;
+      letter-spacing: 1.5px;
+    }
+
+    /* Popup overlay */
+    #popup {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: #f1f1f1dd;
+      border: 2px solid #7d9d9c;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      max-width: 320px;
+      box-shadow: 3px 3px 8px rgba(0,0,0,0.2);
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      color: #2c3e50;
+      user-select: none;
+      z-index: 1000;
+    }
+
+    #popup button.close-btn {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      background: #7d9d9c;
+      border: none;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      color: #f1f1f1;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 20px;
+      padding: 0;
+      user-select: none;
+    }
+
+    #popup button.close-btn:hover {
+      background: #5e7d7c;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="https://images.vexels.com/media/users/3/355917/isolated/preview/8d010899fcd583891c9c6fed8958fa50-brown-banana-design.png" alt="Chismesito Logo" />
+    <div class="title-container">
+      <h1>Chismesito</h1>
+      <p>La base de dato donde utede ponen su chime.</p>
+    </div>
+  </header>
+
+  <div id="map">
+    <div id="popup">
+      <button class="close-btn" title="Close popup">&times;</button>
+      <strong>¿Cómo usar Chismesito?</strong>
+      <p>Haz click en cualquier lugar del mapa para poner un pin con tu chisme sobre ese lugar. ¡Todos pueden ver los chismes!</p>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Chismesito — Dique tu no sabe klk en tu barrio, palomo.
+  </footer>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script type="module">
+    const map = L.map('map').setView([18.7357, -70.1627], 8); // Dominican Republic
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Popup close button
+    const popup = document.getElementById('popup');
+    const closeBtn = popup.querySelector('.close-btn');
+    closeBtn.addEventListener('click', () => {
+      popup.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
