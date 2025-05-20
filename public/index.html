@@ -5,7 +5,6 @@
   <title>Chismesito</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    /* Reset and base */
     body {
       margin: 0;
       font-family: 'Comic Sans MS', cursive, sans-serif;
@@ -16,7 +15,6 @@
       height: 100vh;
     }
 
-    /* Header */
     header {
       background: linear-gradient(135deg, #7d9d9c, #a7c4bc);
       color: #2c3e50;
@@ -61,16 +59,15 @@
       user-select: none;
     }
 
-    /* Map container */
     #map {
       flex-grow: 1;
       width: 100%;
       border-top: 4px solid #a7c4bc;
       border-bottom: 4px solid #7d9d9c;
       position: relative;
+      height: 80vh; /* Ensure map has height */
     }
 
-    /* Footer */
     footer {
       background: #7d9d9c;
       color: #f1f1f1;
@@ -84,7 +81,6 @@
       letter-spacing: 1.5px;
     }
 
-    /* Popup overlay */
     #popup {
       position: absolute;
       top: 1rem;
@@ -133,30 +129,50 @@
     </div>
   </header>
 
-  <div id="map">
-    <div id="popup">
-      <button class="close-btn" title="Close popup">&times;</button>
-      <strong>¿Cómo usar Chismesito?</strong>
-      <p>Haz click en cualquier lugar del mapa para poner un pin con tu chisme sobre ese lugar. ¡Todos pueden ver los chismes!</p>
-    </div>
-  </div>
+  <div id="map"></div>
 
   <footer>
     &copy; 2025 Chismesito — Dique tu no sabe klk en tu barrio, palomo.
   </footer>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script type="module">
-    const map = L.map('map').setView([18.7357, -70.1627], 8); // Dominican Republic
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
 
-    // Popup close button
-    const popup = document.getElementById('popup');
-    const closeBtn = popup.querySelector('.close-btn');
-    closeBtn.addEventListener('click', () => {
-      popup.style.display = 'none';
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const map = L.map('map').setView([18.7357, -70.1627], 8);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    // Load existing chismes from Firestore and add markers
+    const loadChismes = async () => {
+      const querySnapshot = await getDocs(collection(db, "chismes"));
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        L.marker(data.coords).addTo(map).bindPopup(data.text);
+      });
+    };
+    loadChismes();
+
+    // Add chisme on map click
+    map.on('click', async (e) => {
+      const text = prompt("¿Qué chisme hay por aquí?");
+      if (text) {
+        await addDoc(collection(db, "chismes"), {
+          coords: [e.latlng.lat, e.latlng.lng],
+          text
+        });
+        L.marker([e.latlng.lat, e.latlng.lng]).addTo(map).bindPopup(text);
+      }
     });
   </script>
 </body>
