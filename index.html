@@ -207,31 +207,84 @@
       background: #5e7d7c;
     }
 
+    /* Action menu popup */
+    #action-menu-popup {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ffffffee;
+      border: 2px solid #a7c4bc;
+      border-radius: 12px;
+      padding: 1rem;
+      width: 250px;
+      text-align: center;
+      display: none;
+    }
+
+    #action-menu-popup button {
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 0.7rem 1rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    #reserve-btn {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    #reserve-btn:hover {
+      background-color: #c0392b;
+    }
+
+    #chisme-btn {
+      background-color: #3498db;
+      color: white;
+    }
+
+    #chisme-btn:hover {
+      background-color: #2980b9;
+    }
+
+    /* Chisme form popup */
     #chisme-form-popup {
-      top: 1rem;
-      left: 1rem;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       background: #ffffffee;
       border: 2px solid #a7c4bc;
       border-radius: 12px;
       padding: 1rem;
       max-width: 280px;
-      display: none;
       width: 80%;
+      display: none;
     }
 
     #chisme-form-popup textarea {
       width: 100%;
-      height: 60px;
+      height: 80px;
       border-radius: 6px;
       border: 1px solid #ccc;
       padding: 0.5rem;
       font-family: inherit;
       resize: vertical;
       box-sizing: border-box;
+      margin-bottom: 0.5rem;
+    }
+
+    #category-selector {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
 
     #chisme-form-popup button {
-      margin-top: 0.5rem;
       padding: 0.4rem 0.8rem;
       border: none;
       border-radius: 6px;
@@ -258,6 +311,57 @@
     #chisme-form-popup .cancel-btn:hover {
       background-color: #888;
     }
+
+    /* Reserve location popup */
+    #reserve-form-popup {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ffffffee;
+      border: 2px solid #e74c3c;
+      border-radius: 12px;
+      padding: 1rem;
+      max-width: 280px;
+      width: 80%;
+      display: none;
+    }
+
+    #reserve-form-popup input {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 0.5rem;
+      box-sizing: border-box;
+    }
+
+    #reserve-form-popup button {
+      padding: 0.4rem 0.8rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+
+    #reserve-form-popup .submit-btn {
+      background-color: #e74c3c;
+      color: #fff;
+    }
+
+    #reserve-form-popup .submit-btn:hover {
+      background-color: #c0392b;
+    }
+
+    #reserve-form-popup .cancel-btn {
+      background-color: #aaa;
+      color: #fff;
+      margin-left: 0.5rem;
+    }
+
+    #reserve-form-popup .cancel-btn:hover {
+      background-color: #888;
+    }
     
     #error-message {
       color: #e74c3c;
@@ -265,6 +369,33 @@
       font-size: 0.9rem;
       font-weight: bold;
       display: none;
+    }
+
+    .location-button {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: white;
+      border: 2px solid #7d9d9c;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      cursor: pointer;
+    }
+
+    .location-button:hover {
+      background: #f5f5f5;
+    }
+
+    .location-button svg {
+      width: 24px;
+      height: 24px;
+      fill: #7d9d9c;
     }
     
     /* Media Queries for Responsiveness */
@@ -314,7 +445,10 @@
         padding: 0.4rem 1.2rem;
       }
       
-      #chisme-form-popup {
+      #action-menu-popup,
+      #chisme-form-popup,
+      #reserve-form-popup {
+        width: 85%;
         max-width: 250px;
       }
     }
@@ -379,13 +513,43 @@
 
   <div class="map-container">
     <div id="map"></div>
+    <button class="location-button" id="locate-me">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+      </svg>
+    </button>
   </div>
 
+  <!-- Action Menu Popup -->
+  <div id="action-menu-popup" class="popup">
+    <h3>¿Qué deseas hacer aquí?</h3>
+    <button id="reserve-btn">Reservar Coordinadas</button>
+    <button id="chisme-btn">Dejar un Chisme</button>
+  </div>
+
+  <!-- Chisme Form Popup -->
   <div id="chisme-form-popup" class="popup">
-    <label for="chisme-text">¿Qué chisme hay por aquí?</label>
-    <textarea id="chisme-text" placeholder="Escribe tu chisme..."></textarea><br />
-    <div id="error-message"></div>
+    <button class="close-btn">×</button>
+    <h3>Deja tu chisme</h3>
+    <select id="category-selector">
+      <option value="chisme">Chisme (naranja)</option>
+      <option value="note">Nota anónima (azul)</option>
+      <option value="complaint">Queja (morada)</option>
+    </select>
+    <textarea id="chisme-text" placeholder="Escribe tu mensaje..."></textarea>
+    <div id="chisme-error-message" class="error-message"></div>
     <button class="submit-btn">Guardar</button>
+    <button class="cancel-btn">Cancelar</button>
+  </div>
+
+  <!-- Reserve Location Popup -->
+  <div id="reserve-form-popup" class="popup">
+    <button class="close-btn">×</button>
+    <h3>Reservar Coordinadas</h3>
+    <p>Crea un punto de encuentro para recibir notas y chismes.</p>
+    <input type="text" id="location-name" placeholder="Nombre o señal para identificar este punto">
+    <div id="reserve-error-message" class="error-message"></div>
+    <button class="submit-btn">Reservar</button>
     <button class="cancel-btn">Cancelar</button>
   </div>
 
@@ -394,10 +558,10 @@
     <h2>¡Bienvenido a Chismesito!</h2>
     <p>La plataforma donde puedes compartir y descubrir chismes en tu área.</p>
     <ul>
-      <li>Haz clic en cualquier punto del mapa para compartir un chisme.</li>
-      <li>Los marcadores en el mapa representan chismes existentes.</li>
-      <li>Haz clic en un marcador para leer el chisme.</li>
-      <li>Usa la barra de búsqueda para encontrar lugares específicos.</li>
+      <li>Haz clic en cualquier punto del mapa para dejar un chisme o reservar tu ubicación.</li>
+      <li>Los marcadores de colores representan diferentes tipos de mensajes.</li>
+      <li>Los puntos rojos representan ubicaciones reservadas donde otros pueden dejarte mensajes.</li>
+      <li>Usa el botón de ubicación para encontrar tu posición actual.</li>
     </ul>
     <p>¡Disfruta explorando los chismes de tu comunidad!</p>
     <button id="welcome-continue-btn">¡Entendido!</button>
@@ -411,9 +575,53 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-    // Initialize map first - this ensures the map is always available
+    // Custom marker icons
+    const createCustomIcon = (color, type) => {
+      let iconUrl;
+      let iconSize;
+      
+      if (type === 'reserved') {
+        // Create SVG icon for reserved points (red flag-like icon)
+        const svg = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 30 40">
+            <path d="M7,0 C3.13,0 0,3.13 0,7 C0,12.25 7,20 7,20 C7,20 14,12.25 14,7 C14,3.13 10.87,0 7,0 Z" fill="#e74c3c" transform="translate(5, 0)"/>
+            <text x="15" y="11" font-size="10" text-anchor="middle" fill="white">R</text>
+          </svg>
+        `;
+        
+        iconUrl = 'data:image/svg+xml;base64,' + btoa(svg);
+        iconSize = [30, 40];
+      } else {
+        // Simple colored circle for regular markers
+        const svg = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+            <circle cx="10" cy="10" r="8" fill="${color}" stroke="#fff" stroke-width="1"/>
+          </svg>
+        `;
+        
+        iconUrl = 'data:image/svg+xml;base64,' + btoa(svg);
+        iconSize = [20, 20];
+      }
+      
+      return L.icon({
+        iconUrl: iconUrl,
+        iconSize: iconSize,
+        iconAnchor: [iconSize[0]/2, iconSize[1]],
+        popupAnchor: [0, -iconSize[1]]
+      });
+    };
+
+    // Define marker icons for different categories
+    const icons = {
+      chisme: createCustomIcon('#ff9800', 'chisme'),         // Orange
+      note: createCustomIcon('#2196f3', 'note'),             // Blue
+      complaint: createCustomIcon('#9c27b0', 'complaint'),   // Purple
+      reserved: createCustomIcon('#e74c3c', 'reserved')      // Red (reserved location)
+    };
+
+    // Initialize map
     const map = L.map('map').setView([18.7357, -70.1627], 8);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -433,13 +641,12 @@
     // Initialize Firebase
     let app;
     let db;
-    const errorMessage = document.getElementById('error-message');
     
     try {
       app = initializeApp(firebaseConfig);
       db = getFirestore(app);
       
-      // Enable offline persistence (helps with intermittent connections)
+      // Enable offline persistence
       enableIndexedDbPersistence(db)
         .catch((err) => {
           if (err.code === 'failed-precondition') {
@@ -455,26 +662,135 @@
       alert("Error initializing the app. Please check the console for details.");
     }
 
-    // Load existing chismes
-    const loadChismes = async () => {
+    // Load existing markers
+    const loadMarkers = async () => {
       if (!db) return;
       
       try {
-        const querySnapshot = await getDocs(collection(db, "chismes"));
-        querySnapshot.forEach(doc => {
+        // Load chismes
+        const chismesSnapshot = await getDocs(collection(db, "chismes"));
+        chismesSnapshot.forEach(doc => {
           const data = doc.data();
           if (data.coords && Array.isArray(data.coords) && data.coords.length === 2) {
-            L.marker(data.coords).addTo(map).bindPopup(data.text);
+            const category = data.category || 'chisme'; // Default to 'chisme' if category is not specified
+            const icon = icons[category];
+            
+            L.marker(data.coords, { icon: icon }).addTo(map)
+              .bindPopup(`<strong>${getCategoryDisplayName(category)}</strong><br>${data.text}`);
+          }
+        });
+        
+        // Load reserved locations
+        const reservedSnapshot = await getDocs(collection(db, "reserved"));
+        reservedSnapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.coords && Array.isArray(data.coords) && data.coords.length === 2) {
+            const reservedIcon = icons.reserved;
+            
+            const marker = L.marker(data.coords, { icon: reservedIcon }).addTo(map);
+            
+            marker.bindPopup(`<strong>Punto Reservado</strong><br>${data.name}`);
+            
+            // Add click handler to reserved markers to load associated chismes
+            marker.on('click', () => {
+              loadChismesForReservedLocation(data.coords);
+            });
           }
         });
       } catch (error) {
-        console.error("Error loading chismes:", error);
+        console.error("Error loading markers:", error);
       }
     };
     
-    // Only try to load chismes if Firebase initialized successfully
+    // Helper function to get user-friendly category name
+    const getCategoryDisplayName = (category) => {
+      switch(category) {
+        case 'chisme': return 'Chisme';
+        case 'note': return 'Nota Anónima';
+        case 'complaint': return 'Queja';
+        default: return 'Mensaje';
+      }
+    };
+    
+    // Load chismes specific to a reserved location
+    const loadChismesForReservedLocation = async (coords) => {
+      if (!db) return;
+      
+      try {
+        // Clear existing temporary markers (chismes for reserved locations)
+        map.eachLayer(layer => {
+          if (layer._tempMarker) {
+            map.removeLayer(layer);
+          }
+        });
+        
+        // Calculate a small radius around the reserved point (approximately 100 meters)
+        const lat = coords[0];
+        const lng = coords[1];
+        const latDelta = 0.001; // Roughly 100m in latitude
+        const lngDelta = 0.001 / Math.cos(lat * Math.PI / 180); // Adjust for longitude based on latitude
+        
+        // Get chismes within the radius that are linked to this reserved point
+        const chismesSnapshot = await getDocs(
+          query(collection(db, "reservedChismes"), 
+                where("reservedCoords", "==", coords))
+        );
+        
+        let count = 0;
+        
+        chismesSnapshot.forEach(doc => {
+          const data = doc.data();
+          
+          // Calculate a position around the reserved point in a circle
+          const angle = count * (2 * Math.PI / Math.max(1, chismesSnapshot.size));
+          const offsetLat = latDelta * Math.sin(angle);
+          const offsetLng = lngDelta * Math.cos(angle);
+          
+          const markerPos = [lat + offsetLat, lng + offsetLng];
+          const category = data.category || 'note';
+          const icon = icons[category];
+          
+          const marker = L.marker(markerPos, { icon: icon });
+          marker._tempMarker = true; // Mark as temporary
+          
+          marker.addTo(map)
+            .bindPopup(`<strong>${getCategoryDisplayName(category)}</strong><br>${data.text}`);
+          
+          count++;
+        });
+        
+        // If any chismes were found, zoom to fit them
+        if (count > 0) {
+          // Create a notification on screen
+          const notification = document.createElement('div');
+          notification.style.position = 'absolute';
+          notification.style.bottom = '80px';
+          notification.style.left = '50%';
+          notification.style.transform = 'translateX(-50%)';
+          notification.style.backgroundColor = 'rgba(231, 76, 60, 0.9)';
+          notification.style.color = 'white';
+          notification.style.padding = '12px 20px';
+          notification.style.borderRadius = '8px';
+          notification.style.fontWeight = 'bold';
+          notification.style.zIndex = '1000';
+          notification.style.boxShadow = '0 3px 10px rgba(0,0,0,0.2)';
+          notification.textContent = `${count} mensajes encontrados para este punto`;
+          
+          document.body.appendChild(notification);
+          
+          // Remove notification after 3 seconds
+          setTimeout(() => {
+            document.body.removeChild(notification);
+          }, 3000);
+        }
+      } catch (error) {
+        console.error("Error loading chismes for reserved location:", error);
+      }
+    };
+    
+    // Only try to load markers if Firebase initialized successfully
     if (db) {
-      loadChismes();
+      loadMarkers();
     }
 
     // Search functionality
@@ -546,108 +862,398 @@
     welcomeCloseBtn.addEventListener('click', closeWelcomePopup);
     welcomeContinueBtn.addEventListener('click', closeWelcomePopup);
 
-    // Chisme form popup logic
-    const chismePopup = document.getElementById('chisme-form-popup');
-    const textarea = document.getElementById('chisme-text');
-    const submitBtn = chismePopup.querySelector('.submit-btn');
-    const cancelBtn = chismePopup.querySelector('.cancel-btn');
-    const closeBtn = chismePopup.querySelector('.close-btn');
-    let currentLatLng = null;
-
-    // Make popups responsive to screen size and location
-    const positionPopup = (popup, latLng) => {
-      const mapSize = map.getSize();
-      const popupWidth = popup.offsetWidth;
-      const popupHeight = popup.offsetHeight;
-      const point = map.latLngToContainerPoint(latLng);
-      
-      // Check if we're on a small screen (likely mobile)
-      const isMobile = window.innerWidth <= 768;
-      
-      let left, top;
-      
-      if (isMobile) {
-        // On mobile, center the popup horizontally
-        left = Math.max(10, Math.min(mapSize.x - popupWidth - 10, mapSize.x / 2 - popupWidth / 2));
-        // Position near the bottom of the screen but not at the very bottom
-        top = mapSize.y - popupHeight - 30;
+    // Get user's current location
+    const locateBtn = document.getElementById('locate-me');
+    
+    locateBtn.addEventListener('click', () => {
+      if (navigator.geolocation) {
+        locateBtn.style.backgroundColor = '#e0e0e0';
+        locateBtn.disabled = true;
+        
+        navigator.geolocation.getCurrentPosition(
+          // Success callback
+          (position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            
+            // Move map to user's location and zoom in
+            map.setView([userLat, userLng], 15);
+            
+            // Add a temporary marker showing the user's position that disappears after 3 seconds
+            const userMarker = L.circleMarker([userLat, userLng], {
+              radius: 8,
+              fillColor: '#3388ff',
+              color: '#fff',
+              weight: 2,
+              opacity: 1,
+              fillOpacity: 0.8
+            }).addTo(map);
+            
+            // Create pulse effect
+            const pulseMarker = L.circleMarker([userLat, userLng], {
+              radius: 8,
+              fillColor: '#3388ff',
+              color: '#fff',
+              weight: 2,
+              opacity: 0.6,
+              fillOpacity: 0.4
+            }).addTo(map);
+            
+            // Animate pulse effect
+            let size = 8;
+            const pulseAnimation = setInterval(() => {
+              size += 1;
+              pulseMarker.setRadius(size);
+              pulseMarker.setStyle({
+                opacity: Math.max(0, 0.6 - size/40),
+                fillOpacity: Math.max(0, 0.4 - size/40)
+              });
+              
+              if (size > 30) {
+                clearInterval(pulseAnimation);
+                map.removeLayer(pulseMarker);
+                map.removeLayer(userMarker);
+              }
+            }, 50);
+            
+            // Re-enable the button after a short delay
+            setTimeout(() => {
+              locateBtn.style.backgroundColor = '';
+              locateBtn.disabled = false;
+            }, 2000);
+          },
+          // Error callback
+          (error) => {
+            console.error("Error getting user location:", error);
+            alert("No se pudo obtener tu ubicación. Verifica que tengas habilitado el acceso a la ubicación en tu navegador.");
+            locateBtn.style.backgroundColor = '';
+            locateBtn.disabled = false;
+          },
+          // Options
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          }
+        );
       } else {
-        // On desktop, position near the click but avoid edges
-        left = Math.max(10, Math.min(mapSize.x - popupWidth - 10, point.x - popupWidth / 2));
-        top = Math.max(70, Math.min(mapSize.y - popupHeight - 10, point.y - popupHeight - 10));
+        alert("Tu navegador no soporta geolocalización");
       }
-      
-      popup.style.left = left + 'px';
-      popup.style.top = top + 'px';
-    };
-
-    map.on('click', (e) => {
-      currentLatLng = e.latlng;
-      textarea.value = '';
-      errorMessage.style.display = 'none';
-      chismePopup.style.display = 'block';
-      
-      // Position the popup responsively
-      positionPopup(chismePopup, e.latlng);
+    });
+    
+    // Try to get user location automatically on page load
+    window.addEventListener('load', () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            map.setView([userLat, userLng], 13);
+          },
+          (error) => {
+            console.log("User location not available on page load:", error);
+            // Silently fail - we'll use the default location instead
+          },
+          { 
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          }
+        );
+      }
     });
 
-    const closeChismePopup = () => {
-      chismePopup.style.display = 'none';
-      errorMessage.style.display = 'none';
-    };
+    // Action menu and form popups
+    const actionMenuPopup = document.getElementById('action-menu-popup');
+    const chismeFormPopup = document.getElementById('chisme-form-popup');
+    const reserveFormPopup = document.getElementById('reserve-form-popup');
+    
+    const reserveBtn = document.getElementById('reserve-btn');
+    const chismeBtn = document.getElementById('chisme-btn');
+    
+    const chismeTextarea = document.getElementById('chisme-text');
+    const categorySelector = document.getElementById('category-selector');
+    const locationNameInput = document.getElementById('location-name');
+    
+    const chismeSubmitBtn = chismeFormPopup.querySelector('.submit-btn');
+    const chismeCancelBtn = chismeFormPopup.querySelector('.cancel-btn');
+    const chismeCloseBtn = chismeFormPopup.querySelector('.close-btn');
+    
+    const reserveSubmitBtn = reserveFormPopup.querySelector('.submit-btn');
+    const reserveCancelBtn = reserveFormPopup.querySelector('.cancel-btn');
+    const reserveCloseBtn = reserveFormPopup.querySelector('.close-btn');
+    
+    const chismeErrorMsg = document.getElementById('chisme-error-message');
+    const reserveErrorMsg = document.getElementById('reserve-error-message');
+    
+    let currentLatLng = null;
 
-    submitBtn.addEventListener('click', async () => {
-      const text = textarea.value.trim();
+    // Show action menu when user clicks on the map
+    map.on('click', (e) => {
+      currentLatLng = e.latlng;
+      
+      // Hide any other open popups
+      chismeFormPopup.style.display = 'none';
+      reserveFormPopup.style.display = 'none';
+      
+      // Show action menu
+      actionMenuPopup.style.display = 'block';
+      
+      // Position the action menu near the click
+      const mapContainer = map.getContainer();
+      const point = map.latLngToContainerPoint(e.latlng);
+      
+      // Calculate position relative to the map container
+      const mapRect = mapContainer.getBoundingClientRect();
+      const left = mapRect.left + point.x - actionMenuPopup.offsetWidth / 2;
+      const top = mapRect.top + point.y - actionMenuPopup.offsetHeight - 10;
+      
+      actionMenuPopup.style.position = 'fixed';
+      actionMenuPopup.style.left = `${left}px`;
+      actionMenuPopup.style.top = `${top}px`;
+    });
+    
+    // Handle reserve button click in action menu
+    reserveBtn.addEventListener('click', () => {
+      actionMenuPopup.style.display = 'none';
+      locationNameInput.value = '';
+      reserveErrorMsg.style.display = 'none';
+      reserveFormPopup.style.display = 'block';
+      
+      // Center the popup
+      reserveFormPopup.style.position = 'fixed';
+      reserveFormPopup.style.left = '50%';
+      reserveFormPopup.style.top = '50%';
+      reserveFormPopup.style.transform = 'translate(-50%, -50%)';
+    });
+    
+    // Handle chisme button click in action menu
+    chismeBtn.addEventListener('click', () => {
+      actionMenuPopup.style.display = 'none';
+      chismeTextarea.value = '';
+      categorySelector.selectedIndex = 0;
+      chismeErrorMsg.style.display = 'none';
+      chismeFormPopup.style.display = 'block';
+      
+      // Center the popup
+      chismeFormPopup.style.position = 'fixed';
+      chismeFormPopup.style.left = '50%';
+      chismeFormPopup.style.top = '50%';
+      chismeFormPopup.style.transform = 'translate(-50%, -50%)';
+    });
+    
+    // Close popups when clicking outside
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('#action-menu-popup') ||
+          e.target.closest('#chisme-form-popup') ||
+          e.target.closest('#reserve-form-popup') ||
+          e.target.closest('.leaflet-container')) {
+        // Clicked inside a popup or on the map - do nothing
+        return;
+      }
+      
+      // Close all popups
+      actionMenuPopup.style.display = 'none';
+      chismeFormPopup.style.display = 'none';
+      reserveFormPopup.style.display = 'none';
+    });
+    
+    // Handle chisme form submission
+    chismeSubmitBtn.addEventListener('click', async () => {
+      const text = chismeTextarea.value.trim();
+      const category = categorySelector.value;
       
       if (!db) {
-        errorMessage.textContent = "La conexión a Firebase no está disponible.";
-        errorMessage.style.display = 'block';
+        chismeErrorMsg.textContent = "La conexión a Firebase no está disponible.";
+        chismeErrorMsg.style.display = 'block';
+        return;
+      }
+      
+      if (!text) {
+        chismeErrorMsg.textContent = "Por favor escribe un mensaje antes de guardar.";
+        chismeErrorMsg.style.display = 'block';
         return;
       }
       
       if (text && currentLatLng) {
         try {
-          submitBtn.disabled = true;
-          submitBtn.textContent = "Guardando...";
+          chismeSubmitBtn.disabled = true;
+          chismeSubmitBtn.textContent = "Guardando...";
           
-          const chismeData = {
+          // Check if we're near a reserved point
+          let isNearReservedPoint = false;
+          let nearestReservedPoint = null;
+          let minDistance = Infinity;
+          
+          // Get all reserved points
+          const reservedSnapshot = await getDocs(collection(db, "reserved"));
+          
+          reservedSnapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.coords && Array.isArray(data.coords) && data.coords.length === 2) {
+              // Calculate distance to this reserved point (approx)
+              const lat1 = currentLatLng.lat;
+              const lng1 = currentLatLng.lng;
+              const lat2 = data.coords[0];
+              const lng2 = data.coords[1];
+              
+              // Simple distance calculation (for sorting purposes)
+              const dist = Math.sqrt(Math.pow(lat1 - lat2, 2) + Math.pow(lng1 - lng2, 2));
+              
+              // If within roughly 100 meters (0.001 degrees is approx 100m)
+              if (dist < 0.001) {
+                isNearReservedPoint = true;
+                
+                if (dist < minDistance) {
+                  minDistance = dist;
+                  nearestReservedPoint = data.coords;
+                }
+              }
+            }
+          });
+          
+          if (isNearReservedPoint && nearestReservedPoint) {
+            // Save as a chisme for the reserved point
+            const chismeData = {
+              reservedCoords: nearestReservedPoint,
+              text: text,
+              category: category,
+              timestamp: new Date().toISOString()
+            };
+            
+            // Add to the reservedChismes collection
+            await addDoc(collection(db, "reservedChismes"), chismeData);
+            
+            // Add marker with appropriate icon
+            const icon = icons[category];
+            L.marker([currentLatLng.lat, currentLatLng.lng], { icon: icon })
+              .addTo(map)
+              .bindPopup(`<strong>${getCategoryDisplayName(category)}</strong><br>${text}`);
+          } else {
+            // Regular chisme - not associated with a reserved point
+            const chismeData = {
+              coords: [currentLatLng.lat, currentLatLng.lng],
+              text: text,
+              category: category,
+              timestamp: new Date().toISOString()
+            };
+            
+            // Add the document to Firestore
+            await addDoc(collection(db, "chismes"), chismeData);
+            
+            // Add marker with appropriate icon
+            const icon = icons[category];
+            L.marker([currentLatLng.lat, currentLatLng.lng], { icon: icon })
+              .addTo(map)
+              .bindPopup(`<strong>${getCategoryDisplayName(category)}</strong><br>${text}`);
+          }
+          
+          // Close popup
+          chismeFormPopup.style.display = 'none';
+        } catch (error) {
+          console.error("Error adding chisme:", error);
+          chismeErrorMsg.textContent = "Error al guardar el mensaje: " + error.message;
+          chismeErrorMsg.style.display = 'block';
+        } finally {
+          chismeSubmitBtn.disabled = false;
+          chismeSubmitBtn.textContent = "Guardar";
+        }
+      }
+    });
+    
+    // Handle reserve form submission
+    reserveSubmitBtn.addEventListener('click', async () => {
+      const locationName = locationNameInput.value.trim();
+      
+      if (!db) {
+        reserveErrorMsg.textContent = "La conexión a Firebase no está disponible.";
+        reserveErrorMsg.style.display = 'block';
+        return;
+      }
+      
+      if (!locationName) {
+        reserveErrorMsg.textContent = "Por favor escribe un nombre o señal para identificar este punto.";
+        reserveErrorMsg.style.display = 'block';
+        return;
+      }
+      
+      if (locationName && currentLatLng) {
+        try {
+          reserveSubmitBtn.disabled = true;
+          reserveSubmitBtn.textContent = "Reservando...";
+          
+          const reservedData = {
             coords: [currentLatLng.lat, currentLatLng.lng],
-            text: text,
+            name: locationName,
             timestamp: new Date().toISOString()
           };
           
           // Add the document to Firestore
-          const docRef = await addDoc(collection(db, "chismes"), chismeData);
-          console.log("Chisme added with ID: ", docRef.id);
+          await addDoc(collection(db, "reserved"), reservedData);
           
-          // Add marker to map
-          L.marker([currentLatLng.lat, currentLatLng.lng]).addTo(map).bindPopup(text);
+          // Add marker to map with reserved icon
+          const marker = L.marker([currentLatLng.lat, currentLatLng.lng], { icon: icons.reserved })
+            .addTo(map)
+            .bindPopup(`<strong>Punto Reservado</strong><br>${locationName}`);
+          
+          // Add click handler to load associated chismes
+          marker.on('click', () => {
+            loadChismesForReservedLocation([currentLatLng.lat, currentLatLng.lng]);
+          });
           
           // Close popup
-          closeChismePopup();
+          reserveFormPopup.style.display = 'none';
+          
+          // Show success message
+          const successMsg = document.createElement('div');
+          successMsg.style.position = 'fixed';
+          successMsg.style.bottom = '20px';
+          successMsg.style.left = '50%';
+          successMsg.style.transform = 'translateX(-50%)';
+          successMsg.style.backgroundColor = '#4CAF50';
+          successMsg.style.color = 'white';
+          successMsg.style.padding = '10px 20px';
+          successMsg.style.borderRadius = '5px';
+          successMsg.style.zIndex = '1000';
+          successMsg.textContent = "¡Punto reservado exitosamente!";
+          document.body.appendChild(successMsg);
+          
+          // Remove message after 3 seconds
+          setTimeout(() => {
+            document.body.removeChild(successMsg);
+          }, 3000);
         } catch (error) {
-          console.error("Error adding chisme:", error);
-          errorMessage.textContent = "Error al guardar el chisme. " + error.message;
-          errorMessage.style.display = 'block';
+          console.error("Error reserving location:", error);
+          reserveErrorMsg.textContent = "Error al reservar las coordenadas: " + error.message;
+          reserveErrorMsg.style.display = 'block';
         } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Guardar";
+          reserveSubmitBtn.disabled = false;
+          reserveSubmitBtn.textContent = "Reservar";
         }
-      } else if (!text) {
-        errorMessage.textContent = "Por favor escribe un chisme antes de guardar.";
-        errorMessage.style.display = 'block';
       }
     });
-
-    cancelBtn.addEventListener('click', closeChismePopup);
-    closeBtn.addEventListener('click', closeChismePopup);
+    
+    // Close button handlers
+    chismeCloseBtn.addEventListener('click', () => {
+      chismeFormPopup.style.display = 'none';
+    });
+    
+    chismeCancelBtn.addEventListener('click', () => {
+      chismeFormPopup.style.display = 'none';
+    });
+    
+    reserveCloseBtn.addEventListener('click', () => {
+      reserveFormPopup.style.display = 'none';
+    });
+    
+    reserveCancelBtn.addEventListener('click', () => {
+      reserveFormPopup.style.display = 'none';
+    });
 
     // Handle device orientation changes and window resizing
     window.addEventListener('resize', () => {
-      // If the chisme popup is visible, reposition it
-      if (chismePopup.style.display === 'block' && currentLatLng) {
-        positionPopup(chismePopup, currentLatLng);
-      }
+      // Invalidate the map size to force a redraw
+      map.invalidateSize();
     });
     
     // Handle orientation changes on mobile
@@ -656,11 +1262,6 @@
       setTimeout(() => {
         // Invalidate the map size to force a redraw
         map.invalidateSize();
-        
-        // If the chisme popup is visible, reposition it
-        if (chismePopup.style.display === 'block' && currentLatLng) {
-          positionPopup(chismePopup, currentLatLng);
-        }
       }, 200);
     });
     
@@ -689,7 +1290,7 @@
         mobileTip.style.textAlign = 'center';
         mobileTip.style.fontSize = '0.9rem';
         mobileTip.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-        mobileTip.textContent = '¡Toca el mapa para añadir un chisme!';
+        mobileTip.textContent = '¡Toca el mapa para añadir un chisme o reservar un punto!';
         
         document.body.appendChild(mobileTip);
         
