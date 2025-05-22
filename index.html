@@ -574,6 +574,40 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
+    // Initialize Firebase first
+    const firebaseConfig = {
+      apiKey: "AIzaSyB58ch6hoGgH0iPMjgu4pWamyYF80UDOHs",
+      authDomain: "chismesito-9c26d.firebaseapp.com",
+      projectId: "chismesito-9c26d",
+      storageBucket: "chismesito-9c26d.firebasestorage.app",
+      messagingSenderId: "102571828511",
+      appId: "1:102571828511:web:d2e5d8897e981ae331bc2a",
+      measurementId: "G-T19VXMYYTG"
+    };
+
+    let app;
+    let db;
+    
+    try {
+      app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      
+      // Enable offline persistence
+      enableIndexedDbPersistence(db)
+        .catch((err) => {
+          if (err.code === 'failed-precondition') {
+            console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+          } else if (err.code === 'unimplemented') {
+            console.warn('The current browser does not support all of the features required to enable persistence');
+          }
+        });
+        
+      console.log("Firebase initialized successfully");
+    } catch (error) {
+      console.error("Error initializing Firebase:", error);
+      alert("Error initializing the app. Please check the console for details.");
+    }
+
     // Custom marker icons
     const createCustomIcon = (color, type) => {
       let iconUrl;
@@ -624,81 +658,6 @@
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyB58ch6hoGgH0iPMjgu4pWamyYF80UDOHs",
-      authDomain: "chismesito-9c26d.firebaseapp.com",
-      projectId: "chismesito-9c26d",
-      storageBucket: "chismesito-9c26d.firebasestorage.app",
-      messagingSenderId: "102571828511",
-      appId: "1:102571828511:web:d2e5d8897e981ae331bc2a",
-      measurementId: "G-T19VXMYYTG"
-    };
-
-    // Initialize Firebase
-    let app;
-    let db;
-    
-    try {
-      app = initializeApp(firebaseConfig);
-      db = getFirestore(app);
-      
-      // Enable offline persistence
-      enableIndexedDbPersistence(db)
-        .catch((err) => {
-          if (err.code === 'failed-precondition') {
-            console.warn('Multiple tabs open, persistence can only be enabled in one tab at a a time.');
-          } else if (err.code === 'unimplemented') {
-            console.warn('The current browser does not support all of the features required to enable persistence');
-          }
-        });
-        
-      console.log("Firebase initialized successfully");
-    } catch (error) {
-      console.error("Error initializing Firebase:", error);
-      alert("Error initializing the app. Please check the console for details.");
-    }
-
-    // Load existing markers
-    const loadMarkers = async () => {
-      if (!db) return;
-      
-      try {
-        // Load chismes
-        const chismesSnapshot = await getDocs(collection(db, "chismes"));
-        chismesSnapshot.forEach(doc => {
-          const data = doc.data();
-          if (data.coords && Array.isArray(data.coords) && data.coords.length === 2) {
-            const category = data.category || 'chisme'; // Default to 'chisme' if category is not specified
-            const icon = icons[category];
-            
-            L.marker(data.coords, { icon: icon }).addTo(map)
-              .bindPopup(`<strong>${getCategoryDisplayName(category)}</strong><br>${data.text}`);
-          }
-        });
-        
-        // Load reserved locations
-        const reservedSnapshot = await getDocs(collection(db, "reserved"));
-        reservedSnapshot.forEach(doc => {
-          const data = doc.data();
-          if (data.coords && Array.isArray(data.coords) && data.coords.length === 2) {
-            const reservedIcon = icons.reserved;
-            
-            const marker = L.marker(data.coords, { icon: reservedIcon }).addTo(map);
-            
-            marker.bindPopup(`<strong>Punto Reservado</strong><br>${data.name}`);
-            
-            // Add click handler to reserved markers to load associated chismes
-            marker.on('click', () => {
-              loadChismesForReservedLocation(data.coords);
-            });
-          }
-        });
-      } catch (error) {
-        console.error("Error loading markers:", error);
-      }
-    };
-    
     // Helper function to get user-friendly category name
     const getCategoryDisplayName = (category) => {
       switch(category) {
@@ -708,7 +667,7 @@
         default: return 'Mensaje';
       }
     };
-    
+
     // Load chismes specific to a reserved location
     const loadChismesForReservedLocation = async (coords) => {
       if (!db) return;
@@ -777,25 +736,424 @@
           
           // Remove notification after 3 seconds
           setTimeout(() => {
-            document.body.removeChild(notification);
+            if (document.body.contains(notification)) {
+              document.body.removeChild(notification);
+            }
           }, 3000);
         }
       } catch (error) {
         console.error("Error loading chismes for reserved location:", error);
       }
     };
-    
-    // Only try to load markers if Firebase initialized successfully
+
+    // Load existing markers
+    const loadMarkers = async () => {
+      if (!db) return;
+      
+      try {
+        // Load chismes
+        const chismesSnapshot = await getDocs(collection(db, "chismes"));
+        chismesSnapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.coords && Array.isArray(data.coords) && data.coords.length === 2) {
+            const category = data.category || 'chisme'; // Default to 'chisme' if category is not specified
+            const icon = icons[category];
+            
+            L.marker(data.coords, { icon: icon }).addTo(map)
+              .bindPopup(`<strong>${getCategoryDisplayName(category)}</strong><br>${data.text}`);
+          }
+        });
+        
+        // Load reserved locations
+        const reservedSnapshot = await getDocs(collection(db, "reserved"));
+        reservedSnapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.coords && Array.isArray(data.coords) && data.coords.length === 2) {
+            const reservedIcon = icons.reserved;
+            
+            const marker = L.marker(data.coords, { icon: reservedIcon }).addTo(map);
+            
+            marker.bindPopup(`<strong>Punto Reservado</strong><br>${data.name}`);
+            
+            // Add click handler to reserved markers to load associated chismes
+            marker.on('click', () => {
+              loadChismesForReservedLocation(data.coords);
+            });
+          }
+        });
+      } catch (error) {
+        console.error("Error loading markers:", error);
+      }
+    };
+
+    // Load markers when Firebase is ready
     if (db) {
       loadMarkers();
     }
 
-    // Search functionality
+    // DOM Elements - Get them once at the beginning
+    const actionMenuPopup = document.getElementById('action-menu-popup');
+    const chismeFormPopup = document.getElementById('chisme-form-popup');
+    const reserveFormPopup = document.getElementById('reserve-form-popup');
+    const welcomePopup = document.getElementById('welcome-popup');
+    
+    const reserveBtn = document.getElementById('reserve-btn');
+    const chismeBtn = document.getElementById('chisme-btn');
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
+    const locateBtn = document.getElementById('locate-me');
     
+    const chismeTextarea = document.getElementById('chisme-text');
+    const categorySelector = document.getElementById('category-selector');
+    const locationNameInput = document.getElementById('location-name');
+    
+    const chismeSubmitBtn = chismeFormPopup?.querySelector('.submit-btn');
+    const chismeCancelBtn = chismeFormPopup?.querySelector('.cancel-btn');
+    const chismeCloseBtn = chismeFormPopup?.querySelector('.close-btn');
+    
+    const reserveSubmitBtn = reserveFormPopup?.querySelector('.submit-btn');
+    const reserveCancelBtn = reserveFormPopup?.querySelector('.cancel-btn');
+    const reserveCloseBtn = reserveFormPopup?.querySelector('.close-btn');
+    
+    const chismeErrorMsg = document.getElementById('chisme-error-message');
+    const reserveErrorMsg = document.getElementById('reserve-error-message');
+    
+    let currentLatLng = null;
+
+    // Welcome popup logic
+    if (welcomePopup) {
+      const welcomeCloseBtn = welcomePopup.querySelector('.close-btn');
+      const welcomeContinueBtn = document.getElementById('welcome-continue-btn');
+
+      // Check if this is the first visit
+      const isFirstVisit = !localStorage.getItem('visited');
+      if (isFirstVisit) {
+        welcomePopup.style.display = 'block';
+        localStorage.setItem('visited', 'true');
+      } else {
+        welcomePopup.style.display = 'none';
+      }
+
+      const closeWelcomePopup = () => {
+        welcomePopup.style.display = 'none';
+      };
+
+      if (welcomeCloseBtn) {
+        welcomeCloseBtn.addEventListener('click', closeWelcomePopup);
+      }
+      if (welcomeContinueBtn) {
+        welcomeContinueBtn.addEventListener('click', closeWelcomePopup);
+      }
+    }
+
+    // MAP CLICK EVENT - This is the main fix!
+    map.on('click', (e) => {
+      console.log('Map clicked at:', e.latlng); // Debug log
+      currentLatLng = e.latlng;
+      
+      // Hide any other open popups
+      if (chismeFormPopup) chismeFormPopup.style.display = 'none';
+      if (reserveFormPopup) reserveFormPopup.style.display = 'none';
+      
+      // Show action menu
+      if (actionMenuPopup) {
+        actionMenuPopup.style.display = 'block';
+        
+        // Position the action menu near the click
+        const mapContainer = map.getContainer();
+        const point = map.latLngToContainerPoint(e.latlng);
+        
+        // Calculate position relative to the map container
+        const mapRect = mapContainer.getBoundingClientRect();
+        const left = mapRect.left + point.x - actionMenuPopup.offsetWidth / 2;
+        const top = mapRect.top + point.y - actionMenuPopup.offsetHeight - 10;
+        
+        actionMenuPopup.style.position = 'fixed';
+        actionMenuPopup.style.left = `${left}px`;
+        actionMenuPopup.style.top = `${top}px`;
+        
+        console.log('Action menu positioned at:', left, top); // Debug log
+      } else {
+        console.error('Action menu popup not found!');
+      }
+    });
+
+    // Handle reserve button click in action menu
+    if (reserveBtn) {
+      reserveBtn.addEventListener('click', () => {
+        console.log('Reserve button clicked'); // Debug log
+        if (actionMenuPopup) actionMenuPopup.style.display = 'none';
+        if (locationNameInput) locationNameInput.value = '';
+        if (reserveErrorMsg) reserveErrorMsg.style.display = 'none';
+        if (reserveFormPopup) {
+          reserveFormPopup.style.display = 'block';
+          
+          // Center the popup
+          reserveFormPopup.style.position = 'fixed';
+          reserveFormPopup.style.left = '50%';
+          reserveFormPopup.style.top = '50%';
+          reserveFormPopup.style.transform = 'translate(-50%, -50%)';
+        }
+      });
+    }
+    
+    // Handle chisme button click in action menu
+    if (chismeBtn) {
+      chismeBtn.addEventListener('click', () => {
+        console.log('Chisme button clicked'); // Debug log
+        if (actionMenuPopup) actionMenuPopup.style.display = 'none';
+        if (chismeTextarea) chismeTextarea.value = '';
+        if (categorySelector) categorySelector.selectedIndex = 0;
+        if (chismeErrorMsg) chismeErrorMsg.style.display = 'none';
+        if (chismeFormPopup) {
+          chismeFormPopup.style.display = 'block';
+          
+          // Center the popup
+          chismeFormPopup.style.position = 'fixed';
+          chismeFormPopup.style.left = '50%';
+          chismeFormPopup.style.top = '50%';
+          chismeFormPopup.style.transform = 'translate(-50%, -50%)';
+        }
+      });
+    }
+
+    // Close popups when clicking outside
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('#action-menu-popup') ||
+          e.target.closest('#chisme-form-popup') ||
+          e.target.closest('#reserve-form-popup') ||
+          e.target.closest('.leaflet-container')) {
+        // Clicked inside a popup or on the map - do nothing
+        return;
+      }
+      
+      // Close all popups
+      if (actionMenuPopup) actionMenuPopup.style.display = 'none';
+      if (chismeFormPopup) chismeFormPopup.style.display = 'none';
+      if (reserveFormPopup) reserveFormPopup.style.display = 'none';
+    });
+
+    // Handle chisme form submission
+    if (chismeSubmitBtn) {
+      chismeSubmitBtn.addEventListener('click', async () => {
+        const text = chismeTextarea?.value.trim();
+        const category = categorySelector?.value;
+        
+        if (!db) {
+          if (chismeErrorMsg) {
+            chismeErrorMsg.textContent = "La conexión a Firebase no está disponible.";
+            chismeErrorMsg.style.display = 'block';
+          }
+          return;
+        }
+        
+        if (!text) {
+          if (chismeErrorMsg) {
+            chismeErrorMsg.textContent = "Por favor escribe un mensaje antes de guardar.";
+            chismeErrorMsg.style.display = 'block';
+          }
+          return;
+        }
+        
+        if (text && currentLatLng) {
+          try {
+            chismeSubmitBtn.disabled = true;
+            chismeSubmitBtn.textContent = "Guardando...";
+            
+            // Check if we're near a reserved point
+            let isNearReservedPoint = false;
+            let nearestReservedPoint = null;
+            let minDistance = Infinity;
+            
+            // Get all reserved points
+            const reservedSnapshot = await getDocs(collection(db, "reserved"));
+            
+            reservedSnapshot.forEach(doc => {
+              const data = doc.data();
+              if (data.coords && Array.isArray(data.coords) && data.coords.length === 2) {
+                // Calculate distance to this reserved point (approx)
+                const lat1 = currentLatLng.lat;
+                const lng1 = currentLatLng.lng;
+                const lat2 = data.coords[0];
+                const lng2 = data.coords[1];
+                
+                // Simple distance calculation (for sorting purposes)
+                const dist = Math.sqrt(Math.pow(lat1 - lat2, 2) + Math.pow(lng1 - lng2, 2));
+                
+                // If within roughly 100 meters (0.001 degrees is approx 100m)
+                if (dist < 0.001) {
+                  isNearReservedPoint = true;
+                  
+                  if (dist < minDistance) {
+                    minDistance = dist;
+                    nearestReservedPoint = data.coords;
+                  }
+                }
+              }
+            });
+            
+            if (isNearReservedPoint && nearestReservedPoint) {
+              // Save as a chisme for the reserved point
+              const chismeData = {
+                reservedCoords: nearestReservedPoint,
+                text: text,
+                category: category,
+                timestamp: new Date().toISOString()
+              };
+              
+              // Add to the reservedChismes collection
+              await addDoc(collection(db, "reservedChismes"), chismeData);
+              
+              // Add marker with appropriate icon
+              const icon = icons[category];
+              L.marker([currentLatLng.lat, currentLatLng.lng], { icon: icon })
+                .addTo(map)
+                .bindPopup(`<strong>${getCategoryDisplayName(category)}</strong><br>${text}`);
+            } else {
+              // Regular chisme - not associated with a reserved point
+              const chismeData = {
+                coords: [currentLatLng.lat, currentLatLng.lng],
+                text: text,
+                category: category,
+                timestamp: new Date().toISOString()
+              };
+              
+              // Add the document to Firestore
+              await addDoc(collection(db, "chismes"), chismeData);
+              
+              // Add marker with appropriate icon
+              const icon = icons[category];
+              L.marker([currentLatLng.lat, currentLatLng.lng], { icon: icon })
+                .addTo(map)
+                .bindPopup(`<strong>${getCategoryDisplayName(category)}</strong><br>${text}`);
+            }
+            
+            // Close popup
+            if (chismeFormPopup) chismeFormPopup.style.display = 'none';
+          } catch (error) {
+            console.error("Error adding chisme:", error);
+            if (chismeErrorMsg) {
+              chismeErrorMsg.textContent = "Error al guardar el mensaje: " + error.message;
+              chismeErrorMsg.style.display = 'block';
+            }
+          } finally {
+            chismeSubmitBtn.disabled = false;
+            chismeSubmitBtn.textContent = "Guardar";
+          }
+        }
+      });
+    }
+    
+    // Handle reserve form submission
+    if (reserveSubmitBtn) {
+      reserveSubmitBtn.addEventListener('click', async () => {
+        const locationName = locationNameInput?.value.trim();
+        
+        if (!db) {
+          if (reserveErrorMsg) {
+            reserveErrorMsg.textContent = "La conexión a Firebase no está disponible.";
+            reserveErrorMsg.style.display = 'block';
+          }
+          return;
+        }
+        
+        if (!locationName) {
+          if (reserveErrorMsg) {
+            reserveErrorMsg.textContent = "Por favor escribe un nombre o señal para identificar este punto.";
+            reserveErrorMsg.style.display = 'block';
+          }
+          return;
+        }
+        
+        if (locationName && currentLatLng) {
+          try {
+            reserveSubmitBtn.disabled = true;
+            reserveSubmitBtn.textContent = "Reservando...";
+            
+            const reservedData = {
+              coords: [currentLatLng.lat, currentLatLng.lng],
+              name: locationName,
+              timestamp: new Date().toISOString()
+            };
+            
+            // Add the document to Firestore
+            await addDoc(collection(db, "reserved"), reservedData);
+            
+            // Add marker to map with reserved icon
+            const marker = L.marker([currentLatLng.lat, currentLatLng.lng], { icon: icons.reserved })
+              .addTo(map)
+              .bindPopup(`<strong>Punto Reservado</strong><br>${locationName}`);
+            
+            // Add click handler to load associated chismes
+            marker.on('click', () => {
+              loadChismesForReservedLocation([currentLatLng.lat, currentLatLng.lng]);
+            });
+            
+            // Close popup
+            if (reserveFormPopup) reserveFormPopup.style.display = 'none';
+            
+            // Show success message
+            const successMsg = document.createElement('div');
+            successMsg.style.position = 'fixed';
+            successMsg.style.bottom = '20px';
+            successMsg.style.left = '50%';
+            successMsg.style.transform = 'translateX(-50%)';
+            successMsg.style.backgroundColor = '#4CAF50';
+            successMsg.style.color = 'white';
+            successMsg.style.padding = '10px 20px';
+            successMsg.style.borderRadius = '5px';
+            successMsg.style.zIndex = '1000';
+            successMsg.textContent = "¡Punto reservado exitosamente!";
+            document.body.appendChild(successMsg);
+            
+            // Remove message after 3 seconds
+            setTimeout(() => {
+              if (document.body.contains(successMsg)) {
+                document.body.removeChild(successMsg);
+              }
+            }, 3000);
+          } catch (error) {
+            console.error("Error reserving location:", error);
+            if (reserveErrorMsg) {
+              reserveErrorMsg.textContent = "Error al reservar las coordenadas: " + error.message;
+              reserveErrorMsg.style.display = 'block';
+            }
+          } finally {
+            reserveSubmitBtn.disabled = false;
+            reserveSubmitBtn.textContent = "Reservar";
+          }
+        }
+      });
+    }
+    
+    // Close button handlers
+    if (chismeCloseBtn) {
+      chismeCloseBtn.addEventListener('click', () => {
+        if (chismeFormPopup) chismeFormPopup.style.display = 'none';
+      });
+    }
+    
+    if (chismeCancelBtn) {
+      chismeCancelBtn.addEventListener('click', () => {
+        if (chismeFormPopup) chismeFormPopup.style.display = 'none';
+      });
+    }
+    
+    if (reserveCloseBtn) {
+      reserveCloseBtn.addEventListener('click', () => {
+        if (reserveFormPopup) reserveFormPopup.style.display = 'none';
+      });
+    }
+    
+    if (reserveCancelBtn) {
+      reserveCancelBtn.addEventListener('click', () => {
+        if (reserveFormPopup) reserveFormPopup.style.display = 'none';
+      });
+    }
+
+    // Search functionality
     const searchLocation = async () => {
-      const query = searchInput.value.trim();
+      const query = searchInput?.value.trim();
       
       if (!query) return;
       
@@ -831,112 +1189,96 @@
       }
     };
     
-    searchButton.addEventListener('click', searchLocation);
-    searchInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        searchLocation();
-      }
-    });
-
-    // Welcome popup logic
-    const welcomePopup = document.getElementById('welcome-popup');
-    const welcomeCloseBtn = welcomePopup.querySelector('.close-btn');
-    const welcomeContinueBtn = document.getElementById('welcome-continue-btn');
-
-    // Check if this is the first visit
-    const isFirstVisit = !localStorage.getItem('visited');
-    if (isFirstVisit) {
-      welcomePopup.style.display = 'block';
-      localStorage.setItem('visited', 'true');
-    } else {
-      welcomePopup.style.display = 'none';
+    if (searchButton) {
+      searchButton.addEventListener('click', searchLocation);
+    }
+    
+    if (searchInput) {
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          searchLocation();
+        }
+      });
     }
 
-    const closeWelcomePopup = () => {
-      welcomePopup.style.display = 'none';
-    };
-
-    welcomeCloseBtn.addEventListener('click', closeWelcomePopup);
-    welcomeContinueBtn.addEventListener('click', closeWelcomePopup);
-
     // Get user's current location
-    const locateBtn = document.getElementById('locate-me');
-    
-    locateBtn.addEventListener('click', () => {
-      if (navigator.geolocation) {
-        locateBtn.style.backgroundColor = '#e0e0e0';
-        locateBtn.disabled = true;
-        
-        navigator.geolocation.getCurrentPosition(
-          // Success callback
-          (position) => {
-            const userLat = position.coords.latitude;
-            const userLng = position.coords.longitude;
-            
-            // Move map to user's location and zoom in
-            map.setView([userLat, userLng], 15);
-            
-            // Add a temporary marker showing the user's position that disappears after 3 seconds
-            const userMarker = L.circleMarker([userLat, userLng], {
-              radius: 8,
-              fillColor: '#3388ff',
-              color: '#fff',
-              weight: 2,
-              opacity: 1,
-              fillOpacity: 0.8
-            }).addTo(map);
-            
-            // Create pulse effect
-            const pulseMarker = L.circleMarker([userLat, userLng], {
-              radius: 8,
-              fillColor: '#3388ff',
-              color: '#fff',
-              weight: 2,
-              opacity: 0.6,
-              fillOpacity: 0.4
-            }).addTo(map);
-            
-            // Animate pulse effect
-            let size = 8;
-            const pulseAnimation = setInterval(() => {
-              size += 1;
-              pulseMarker.setRadius(size);
-              pulseMarker.setStyle({
-                opacity: Math.max(0, 0.6 - size/40),
-                fillOpacity: Math.max(0, 0.4 - size/40)
-              });
+    if (locateBtn) {
+      locateBtn.addEventListener('click', () => {
+        if (navigator.geolocation) {
+          locateBtn.style.backgroundColor = '#e0e0e0';
+          locateBtn.disabled = true;
+          
+          navigator.geolocation.getCurrentPosition(
+            // Success callback
+            (position) => {
+              const userLat = position.coords.latitude;
+              const userLng = position.coords.longitude;
               
-              if (size > 30) {
-                clearInterval(pulseAnimation);
-                map.removeLayer(pulseMarker);
-                map.removeLayer(userMarker);
-              }
-            }, 50);
-            
-            // Re-enable the button after a short delay
-            setTimeout(() => {
+              // Move map to user's location and zoom in
+              map.setView([userLat, userLng], 15);
+              
+              // Add a temporary marker showing the user's position that disappears after 3 seconds
+              const userMarker = L.circleMarker([userLat, userLng], {
+                radius: 8,
+                fillColor: '#3388ff',
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+              }).addTo(map);
+              
+              // Create pulse effect
+              const pulseMarker = L.circleMarker([userLat, userLng], {
+                radius: 8,
+                fillColor: '#3388ff',
+                color: '#fff',
+                weight: 2,
+                opacity: 0.6,
+                fillOpacity: 0.4
+              }).addTo(map);
+              
+              // Animate pulse effect
+              let size = 8;
+              const pulseAnimation = setInterval(() => {
+                size += 1;
+                pulseMarker.setRadius(size);
+                pulseMarker.setStyle({
+                  opacity: Math.max(0, 0.6 - size/40),
+                  fillOpacity: Math.max(0, 0.4 - size/40)
+                });
+                
+                if (size > 30) {
+                  clearInterval(pulseAnimation);
+                  map.removeLayer(pulseMarker);
+                  map.removeLayer(userMarker);
+                }
+              }, 50);
+              
+              // Re-enable the button after a short delay
+              setTimeout(() => {
+                locateBtn.style.backgroundColor = '';
+                locateBtn.disabled = false;
+              }, 2000);
+            },
+            // Error callback
+            (error) => {
+              console.error("Error getting user location:", error);
+              alert("No se pudo obtener tu ubicación. Verifica que tengas habilitado el acceso a la ubicación en tu navegador.");
               locateBtn.style.backgroundColor = '';
               locateBtn.disabled = false;
-            }, 2000);
-          },
-          // Error callback
-          (error) => {
-            console.error("Error getting user location:", error);
-            alert("No se pudo obtener tu ubicación. Verifica que tengas habilitado el acceso a la ubicación en tu navegador.");
-            locateBtn.style.backgroundColor = '';
-            locateBtn.disabled = false;
-          },
-          // Options
-          {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-          }
-        );
-      } else {
-        alert("Tu navegador no soporta geolocalización");
-      }
-    });
+            },
+            // Options
+            {
+              enableHighAccuracy: true,
+              timeout: 5000,
+              maximumAge: 0
+            }
+          );
+        } else {
+          alert("Tu navegador no soporta geolocalización");
+        }
+      });
+    }
     
     // Try to get user location automatically on page load
     window.addEventListener('load', () => {
@@ -960,293 +1302,6 @@
       }
     });
 
-    // Action menu and form popups
-    const actionMenuPopup = document.getElementById('action-menu-popup');
-    const chismeFormPopup = document.getElementById('chisme-form-popup');
-    const reserveFormPopup = document.getElementById('reserve-form-popup');
-    
-    const reserveBtn = document.getElementById('reserve-btn');
-    const chismeBtn = document.getElementById('chisme-btn');
-    
-    const chismeTextarea = document.getElementById('chisme-text');
-    const categorySelector = document.getElementById('category-selector');
-    const locationNameInput = document.getElementById('location-name');
-    
-    const chismeSubmitBtn = chismeFormPopup.querySelector('.submit-btn');
-    const chismeCancelBtn = chismeFormPopup.querySelector('.cancel-btn');
-    const chismeCloseBtn = chismeFormPopup.querySelector('.close-btn');
-    
-    const reserveSubmitBtn = reserveFormPopup.querySelector('.submit-btn');
-    const reserveCancelBtn = reserveFormPopup.querySelector('.cancel-btn');
-    const reserveCloseBtn = reserveFormPopup.querySelector('.close-btn');
-    
-    const chismeErrorMsg = document.getElementById('chisme-error-message');
-    const reserveErrorMsg = document.getElementById('reserve-error-message');
-    
-    let currentLatLng = null;
-
-    // Show action menu when user clicks on the map
-    map.on('click', (e) => {
-      currentLatLng = e.latlng;
-      
-      // Hide any other open popups
-      chismeFormPopup.style.display = 'none';
-      reserveFormPopup.style.display = 'none';
-      
-      // Show action menu
-      actionMenuPopup.style.display = 'block';
-      
-      // Position the action menu near the click
-      const mapContainer = map.getContainer();
-      const point = map.latLngToContainerPoint(e.latlng);
-      
-      // Calculate position relative to the map container
-      const mapRect = mapContainer.getBoundingClientRect();
-      const left = mapRect.left + point.x - actionMenuPopup.offsetWidth / 2;
-      const top = mapRect.top + point.y - actionMenuPopup.offsetHeight - 10;
-      
-      actionMenuPopup.style.position = 'fixed';
-      actionMenuPopup.style.left = `${left}px`;
-      actionMenuPopup.style.top = `${top}px`;
-    });
-    
-    // Handle reserve button click in action menu
-    reserveBtn.addEventListener('click', () => {
-      actionMenuPopup.style.display = 'none';
-      locationNameInput.value = '';
-      reserveErrorMsg.style.display = 'none';
-      reserveFormPopup.style.display = 'block';
-      
-      // Center the popup
-      reserveFormPopup.style.position = 'fixed';
-      reserveFormPopup.style.left = '50%';
-      reserveFormPopup.style.top = '50%';
-      reserveFormPopup.style.transform = 'translate(-50%, -50%)';
-    });
-    
-    // Handle chisme button click in action menu
-    chismeBtn.addEventListener('click', () => {
-      actionMenuPopup.style.display = 'none';
-      chismeTextarea.value = '';
-      categorySelector.selectedIndex = 0;
-      chismeErrorMsg.style.display = 'none';
-      chismeFormPopup.style.display = 'block';
-      
-      // Center the popup
-      chismeFormPopup.style.position = 'fixed';
-      chismeFormPopup.style.left = '50%';
-      chismeFormPopup.style.top = '50%';
-      chismeFormPopup.style.transform = 'translate(-50%, -50%)';
-    });
-    
-    // Close popups when clicking outside
-    document.addEventListener('click', (e) => {
-      if (e.target.closest('#action-menu-popup') ||
-          e.target.closest('#chisme-form-popup') ||
-          e.target.closest('#reserve-form-popup') ||
-          e.target.closest('.leaflet-container')) {
-        // Clicked inside a popup or on the map - do nothing
-        return;
-      }
-      
-      // Close all popups
-      actionMenuPopup.style.display = 'none';
-      chismeFormPopup.style.display = 'none';
-      reserveFormPopup.style.display = 'none';
-    });
-    
-    // Handle chisme form submission
-    chismeSubmitBtn.addEventListener('click', async () => {
-      const text = chismeTextarea.value.trim();
-      const category = categorySelector.value;
-      
-      if (!db) {
-        chismeErrorMsg.textContent = "La conexión a Firebase no está disponible.";
-        chismeErrorMsg.style.display = 'block';
-        return;
-      }
-      
-      if (!text) {
-        chismeErrorMsg.textContent = "Por favor escribe un mensaje antes de guardar.";
-        chismeErrorMsg.style.display = 'block';
-        return;
-      }
-      
-      if (text && currentLatLng) {
-        try {
-          chismeSubmitBtn.disabled = true;
-          chismeSubmitBtn.textContent = "Guardando...";
-          
-          // Check if we're near a reserved point
-          let isNearReservedPoint = false;
-          let nearestReservedPoint = null;
-          let minDistance = Infinity;
-          
-          // Get all reserved points
-          const reservedSnapshot = await getDocs(collection(db, "reserved"));
-          
-          reservedSnapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.coords && Array.isArray(data.coords) && data.coords.length === 2) {
-              // Calculate distance to this reserved point (approx)
-              const lat1 = currentLatLng.lat;
-              const lng1 = currentLatLng.lng;
-              const lat2 = data.coords[0];
-              const lng2 = data.coords[1];
-              
-              // Simple distance calculation (for sorting purposes)
-              const dist = Math.sqrt(Math.pow(lat1 - lat2, 2) + Math.pow(lng1 - lng2, 2));
-              
-              // If within roughly 100 meters (0.001 degrees is approx 100m)
-              if (dist < 0.001) {
-                isNearReservedPoint = true;
-                
-                if (dist < minDistance) {
-                  minDistance = dist;
-                  nearestReservedPoint = data.coords;
-                }
-              }
-            }
-          });
-          
-          if (isNearReservedPoint && nearestReservedPoint) {
-            // Save as a chisme for the reserved point
-            const chismeData = {
-              reservedCoords: nearestReservedPoint,
-              text: text,
-              category: category,
-              timestamp: new Date().toISOString()
-            };
-            
-            // Add to the reservedChismes collection
-            await addDoc(collection(db, "reservedChismes"), chismeData);
-            
-            // Add marker with appropriate icon
-            const icon = icons[category];
-            L.marker([currentLatLng.lat, currentLatLng.lng], { icon: icon })
-              .addTo(map)
-              .bindPopup(`<strong>${getCategoryDisplayName(category)}</strong><br>${text}`);
-          } else {
-            // Regular chisme - not associated with a reserved point
-            const chismeData = {
-              coords: [currentLatLng.lat, currentLatLng.lng],
-              text: text,
-              category: category,
-              timestamp: new Date().toISOString()
-            };
-            
-            // Add the document to Firestore
-            await addDoc(collection(db, "chismes"), chismeData);
-            
-            // Add marker with appropriate icon
-            const icon = icons[category];
-            L.marker([currentLatLng.lat, currentLatLng.lng], { icon: icon })
-              .addTo(map)
-              .bindPopup(`<strong>${getCategoryDisplayName(category)}</strong><br>${text}`);
-          }
-          
-          // Close popup
-          chismeFormPopup.style.display = 'none';
-        } catch (error) {
-          console.error("Error adding chisme:", error);
-          chismeErrorMsg.textContent = "Error al guardar el mensaje: " + error.message;
-          chismeErrorMsg.style.display = 'block';
-        } finally {
-          chismeSubmitBtn.disabled = false;
-          chismeSubmitBtn.textContent = "Guardar";
-        }
-      }
-    });
-    
-    // Handle reserve form submission
-    reserveSubmitBtn.addEventListener('click', async () => {
-      const locationName = locationNameInput.value.trim();
-      
-      if (!db) {
-        reserveErrorMsg.textContent = "La conexión a Firebase no está disponible.";
-        reserveErrorMsg.style.display = 'block';
-        return;
-      }
-      
-      if (!locationName) {
-        reserveErrorMsg.textContent = "Por favor escribe un nombre o señal para identificar este punto.";
-        reserveErrorMsg.style.display = 'block';
-        return;
-      }
-      
-      if (locationName && currentLatLng) {
-        try {
-          reserveSubmitBtn.disabled = true;
-          reserveSubmitBtn.textContent = "Reservando...";
-          
-          const reservedData = {
-            coords: [currentLatLng.lat, currentLatLng.lng],
-            name: locationName,
-            timestamp: new Date().toISOString()
-          };
-          
-          // Add the document to Firestore
-          await addDoc(collection(db, "reserved"), reservedData);
-          
-          // Add marker to map with reserved icon
-          const marker = L.marker([currentLatLng.lat, currentLatLng.lng], { icon: icons.reserved })
-            .addTo(map)
-            .bindPopup(`<strong>Punto Reservado</strong><br>${locationName}`);
-          
-          // Add click handler to load associated chismes
-          marker.on('click', () => {
-            loadChismesForReservedLocation([currentLatLng.lat, currentLatLng.lng]);
-          });
-          
-          // Close popup
-          reserveFormPopup.style.display = 'none';
-          
-          // Show success message
-          const successMsg = document.createElement('div');
-          successMsg.style.position = 'fixed';
-          successMsg.style.bottom = '20px';
-          successMsg.style.left = '50%';
-          successMsg.style.transform = 'translateX(-50%)';
-          successMsg.style.backgroundColor = '#4CAF50';
-          successMsg.style.color = 'white';
-          successMsg.style.padding = '10px 20px';
-          successMsg.style.borderRadius = '5px';
-          successMsg.style.zIndex = '1000';
-          successMsg.textContent = "¡Punto reservado exitosamente!";
-          document.body.appendChild(successMsg);
-          
-          // Remove message after 3 seconds
-          setTimeout(() => {
-            document.body.removeChild(successMsg);
-          }, 3000);
-        } catch (error) {
-          console.error("Error reserving location:", error);
-          reserveErrorMsg.textContent = "Error al reservar las coordenadas: " + error.message;
-          reserveErrorMsg.style.display = 'block';
-        } finally {
-          reserveSubmitBtn.disabled = false;
-          reserveSubmitBtn.textContent = "Reservar";
-        }
-      }
-    });
-    
-    // Close button handlers
-    chismeCloseBtn.addEventListener('click', () => {
-      chismeFormPopup.style.display = 'none';
-    });
-    
-    chismeCancelBtn.addEventListener('click', () => {
-      chismeFormPopup.style.display = 'none';
-    });
-    
-    reserveCloseBtn.addEventListener('click', () => {
-      reserveFormPopup.style.display = 'none';
-    });
-    
-    reserveCancelBtn.addEventListener('click', () => {
-      reserveFormPopup.style.display = 'none';
-    });
-
     // Handle device orientation changes and window resizing
     window.addEventListener('resize', () => {
       // Invalidate the map size to force a redraw
@@ -1265,13 +1320,16 @@
     // Force map to update its size when it becomes visible
     map.invalidateSize();
     
-    // Add touch-friendly interactions for mobile users
+          // Add touch-friendly interactions for mobile users
     if ('ontouchstart' in window) {
       // Make sure clicking the map works well on touch devices
       const mapContainer = document.getElementById('map');
-      mapContainer.style.cursor = 'pointer';
+      if (mapContainer) {
+        mapContainer.style.cursor = 'pointer';
+      }
       
       // Add a visual hint for mobile users on first visit
+      const isFirstVisit = !localStorage.getItem('visited');
       if (isFirstVisit) {
         const mobileTip = document.createElement('div');
         mobileTip.style.position = 'absolute';
@@ -1293,10 +1351,24 @@
         
         // Remove the tip after 5 seconds
         setTimeout(() => {
-          document.body.removeChild(mobileTip);
+          if (document.body.contains(mobileTip)) {
+            document.body.removeChild(mobileTip);
+          }
         }, 5000);
       }
     }
+
+    // Debug function to check if elements exist
+    console.log('DOM Elements Check:');
+    console.log('actionMenuPopup:', !!actionMenuPopup);
+    console.log('chismeFormPopup:', !!chismeFormPopup);
+    console.log('reserveFormPopup:', !!reserveFormPopup);
+    console.log('reserveBtn:', !!reserveBtn);
+    console.log('chismeBtn:', !!chismeBtn);
+    
+    // Make sure map is properly initialized
+    console.log('Map initialized:', !!map);
+    console.log('Firebase DB:', !!db);
   </script>
 </body>
 </html>
