@@ -772,9 +772,10 @@
             const reservedIcon = icons.reserved;
             
             const marker = L.marker(data.coords, { icon: reservedIcon }).addTo(map);
+
             
-            marker.bindPopup(`<strong>Punto Reservado</strong><br>${data.name}`);
-            
+            marker.bindPopup(`<strong>Punto Reservado</strong><br><div style="font-size: 10px; color: red; line-height: 1.2; margin-bottom: 2px;">${data.coords[0].toFixed(6)}, ${data.coords[1].toFixed(6)}</div>${data.name}`);
+
             // Add click handler to reserved markers to load associated chismes
             marker.on('click', () => {
               loadChismesForReservedLocation(data.coords);
